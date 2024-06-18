@@ -12,9 +12,13 @@ namespace Unity.Netcode.Samples
     public class BootstrapManager : MonoBehaviour
     {
         private GUIStyle myStyleButton;
+        private ApplicationData applicationData;
 
         private void Awake()
         {
+#if !UNITY_WEBGL
+            applicationData = new ApplicationData();
+#endif
             myStyleButton = new GUIStyle();
             myStyleButton.fontSize = 40;
             myStyleButton.fontStyle = FontStyle.Bold;
@@ -22,8 +26,24 @@ namespace Unity.Netcode.Samples
         }
         void Start()
         {
+#if !UNITY_WEBGL
+            var transport = NetworkManager.Singleton.gameObject.GetComponent<UnityTransport>();
+            var ip = ApplicationData.IP();
+            var port = (ushort)ApplicationData.Port();
+
+            Debug.Log($"IP: {ip}, Port: {port}");
+
+            if (!string.IsNullOrEmpty(ip) && port > 0)
+            {
+                transport.ConnectionData.Address = ip;
+                transport.ConnectionData.Port = port;
+            }
+
+            Debug.Log($"Connecting to {transport.ConnectionData.Address}:{transport.ConnectionData.Port}");
+
             if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)
                 StartServer();
+#endif
         }
 
         private void OnGUI()

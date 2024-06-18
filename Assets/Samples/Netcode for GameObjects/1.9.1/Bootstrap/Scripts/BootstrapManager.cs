@@ -1,4 +1,7 @@
+using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Unity.Netcode.Samples
 {
@@ -8,10 +11,19 @@ namespace Unity.Netcode.Samples
     /// </summary>
     public class BootstrapManager : MonoBehaviour
     {
+        private GUIStyle myStyleButton;
+
+        private void Awake()
+        {
+            myStyleButton = new GUIStyle();
+            myStyleButton.fontSize = 40;
+            myStyleButton.fontStyle = FontStyle.Bold;
+            //myStyleButton.normal.textColor = Color.white;
+        }
         void Start()
         {
             if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)
-                NetworkManager.Singleton.StartServer();
+                StartServer();
         }
 
         private void OnGUI()
@@ -21,19 +33,19 @@ namespace Unity.Netcode.Samples
             var networkManager = NetworkManager.Singleton;
             if (!networkManager.IsClient && !networkManager.IsServer)
             {
-                if (GUILayout.Button("Host"))
+                if (GUILayout.Button("Host", myStyleButton))
                 {
                     networkManager.StartHost();
                 }
 
-                if (GUILayout.Button("Client"))
+                if (GUILayout.Button("Client", myStyleButton))
                 {
                     networkManager.StartClient();
                 }
 
-                if (GUILayout.Button("Server"))
+                if (GUILayout.Button("Server", myStyleButton))
                 {
-                    networkManager.StartServer();
+                    StartServer();
                 }
             }
             else
@@ -43,7 +55,7 @@ namespace Unity.Netcode.Samples
                 // "Random Teleport" button will only be shown to clients
                 if (networkManager.IsClient)
                 {
-                    if (GUILayout.Button("Random Teleport"))
+                    if (GUILayout.Button("Random Teleport", myStyleButton))
                     {
                         if (networkManager.LocalClient != null)
                         {
@@ -59,6 +71,13 @@ namespace Unity.Netcode.Samples
             }
 
             GUILayout.EndArea();
+        }
+
+        private void StartServer()
+        {
+            NetworkManager.Singleton.StartServer();
+
+            //FindAnyObjectByType<CubeMovement>()?.InitMovement();
         }
     }
 }
